@@ -46,8 +46,8 @@ Future<void> insertPatient(Patient patient) async {
   // Get a reference to the database.
   final Database db = await createDatabase();
 
-  // Insert the Dog into the correct table. You might also specify the
-  // `conflictAlgorithm` to use in case the same dog is inserted twice.
+  // Insert the Patient into the correct table. You might also specify the
+  // `conflictAlgorithm` to use in case the same patient is inserted twice.
   //
   // In this case, replace any previous data.
   await db.insert(
