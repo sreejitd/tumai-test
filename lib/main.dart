@@ -1,11 +1,14 @@
+import 'dart:convert';
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'dart:async';
-
+import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_sound/flutter_sound.dart';
 
+const OPENAI_KEY = String.fromEnvironment("OPENAI_KEY");
 void main() async {
   runApp(MyApp());
 }
@@ -46,7 +49,7 @@ Future<void> insertPatient(Patient patient) async {
   // Get a reference to the database.
   final Database db = await createDatabase();
 
-  // Insert the Patient into the correct table. You might also specify the
+  // Insert the patient into the correct table. You might also specify the
   // `conflictAlgorithm` to use in case the same patient is inserted twice.
   //
   // In this case, replace any previous data.
@@ -109,6 +112,42 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
 
+  void sendMessage(String message) async {
+    String prompt =
+        "The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly.\n"
+        "Human: Hello, who are you?\n"
+        "AI: I am an AI created by OpenAI. How can I help you today?";
+    prompt += "\n"
+        "Human: $message\n"
+        "AI:";
+    log(prompt);
+    var result = await http.post(
+        Uri.parse("https://api.openai.com/v1/engines/davinci/completions"),
+        headers: {
+          "Authorization": "Bearer $OPENAI_KEY",
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        body: jsonEncode({
+          "prompt": prompt,
+          "max_tokens": "100",
+          "temperature": "0",
+          "top_p": 1,
+          "stop": "\n",
+        }));
+    //print(json.decode(result.body)['choices']);
+    //AlertDialog(
+    // Retrieve the text the that user has entered by using the
+    // TextEditingController.
+    //content: Text(json.decode(result.body)['id']),
+    //content: Text("1589478378"));
+    //
+    //var body = jsonDecode(result.body);
+    //var text = body["choices"][0]["text"];
+
+    log(result.body);
+  }
+
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -147,6 +186,10 @@ class _MyHomePageState extends State<MyHomePage> {
         minWidth: MediaQuery.of(context).size.width,
         padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
         onPressed: () {
+          sendMessage("how are you?");
+          log("delete");
+        },
+        /*onPressed: () {
           showDialog(
               context: context,
               builder: (context) {
@@ -161,7 +204,7 @@ class _MyHomePageState extends State<MyHomePage> {
             context,
             MaterialPageRoute(builder: (context) => SecondRoute()),
           );
-        },
+        },*/
         child: Text("Login",
             textAlign: TextAlign.center,
             style: style.copyWith(
@@ -208,7 +251,7 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class SecondRoute extends StatelessWidget {
-  TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
+  final TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
   @override
   Widget build(BuildContext context) {
     final lButon = Material(
@@ -286,7 +329,7 @@ class SecondRoute extends StatelessWidget {
 }
 
 class ThirdRoute extends StatelessWidget {
-  TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
+  final TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
   final c1 = TextEditingController();
   final c2 = TextEditingController();
   final c3 = TextEditingController();
@@ -424,7 +467,7 @@ patientsdisp(eno) async {
 }
 */
 class VitalRoute extends StatelessWidget {
-  TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
+  final TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
 
   @override
   Widget build(BuildContext context) {
@@ -537,7 +580,7 @@ class VitalRoute extends StatelessWidget {
 }
 
 class RecordRoute extends StatelessWidget {
-  TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
+  final TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
 
   @override
   Widget build(BuildContext context) {
@@ -617,16 +660,30 @@ class RecordRoute extends StatelessWidget {
       child: MaterialButton(
         minWidth: MediaQuery.of(context).size.width,
         padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => RecordRoute()),
-          );
+        onPressed: () {},
+        /*onPressed: () {
+          sendMessage("how are you?");
+          log("delete");
+        },
+        
+        onPressed: () async {
+          await sendMessage("hello, can you help me?");
+          //print(txt);
+          showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  // Retrieve the text the that user has entered by using the
+                  // TextEditingController.
+                  content: Text("i am here"),
+                );
+              });
+
           //Navigator.push(
           //context,
           //MaterialPageRoute(builder: (context) => ThirdRoute()),
           //);
-        },
+        },*/
         child: Text("Delete",
             textAlign: TextAlign.center,
             style: style.copyWith(
